@@ -1,6 +1,7 @@
 # BEFEOR RUNNING
 
 Install libraries:
+
 * numpy
 * scipy
 * matplotlib
