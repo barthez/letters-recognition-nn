@@ -1,0 +1,8 @@
+*.pyc
+
+#Backupfiles
+*.bak
+*.tmp
+*~
+*.swp
+
