@@ -1,5 +1,5 @@
 
-from ffnet import ffnet, mlgraph
+from ffnet import ffnet, mlgraph, savenet
 from load_snns import *
 
 def create_and_train_bp(input, output, **kwargs):
@@ -45,3 +45,9 @@ from random import randint
 pat = randint(0,25)
 
 plot_net_output(net, input[pat])
+
+
+filename = raw_input("File name (empty to skip saving): ")
+if len(filename) > 0:
+    savenet(net, filename)
+
