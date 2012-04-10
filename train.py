@@ -2,7 +2,7 @@
 
 USAGE = """Usage {0} network_file.net action
     Actions:
-        - train pattern_filename.pat
+        - train pattern_filename.pat [max_noise_level = 0]
         - regress 
         - letter A-Z"""
 
@@ -10,15 +10,19 @@ from ffnet import ffnet, mlgraph, savenet, loadnet
 from pylab import array
 from utils import *
 
-def create_and_train_bp(input, output, **kwargs):
+def create_bp(input, output):
     it = len(input[0])
     ot = len(output[0])
 
     connection = mlgraph((it, 10, ot))
     net = ffnet(connection)
 
-    net.train_momentum(input, output, **kwargs)
+    print("Created new network...")
+    return net
 
+# trains a network, multiple times
+def train_bp(net, input, output):
+    net.train_momentum(input, output)
     return net
 
 def plot_net_output(net, input):
@@ -55,12 +59,17 @@ def regression_analysis(net, input, target):
 #   legend()
 #   show()
 
-def train_pattern(filename, pattern):
+def create_then_save_network_trained_on(name, pattern, trained_up_to_times):
     input, output = load_snns(pattern)
-    net = create_and_train_bp(input, output)
+    net = create_bp(input, output)
 
-    savenet(net, filename)
-    print("Saved network as: {0}".format(filename))
+    for up_to in range(trained_up_to_times):
+        print("Training the net for the {0}th time...".format(up_to+1)),
+        net = train_bp(net, input, output)
+
+        filename = "{0}_trained_{1}_times.net".format(name, up_to+1)
+        savenet(net, filename)
+        print("saved as: {0}".format(filename))
 
 def _main(argv):
     if len(argv) < 3:
@@ -73,12 +82,16 @@ def _main(argv):
         if len(argv) < 4:
             print >> sys.stderr, USAGE.format(argv[0])
             exit(1)
-        print("Training network on pattern file: {0}".format(argv[3]))
-        train_pattern(net_filename, argv[3])
+        pattern_filename = argv[3]
+        trained_up_to_times = int(argv[4])
+        print("Will train networks on: {0}...".format(pattern_filename))
+        create_then_save_network_trained_on(net_filename, pattern_filename, trained_up_to_times)
+
     elif argv[2] == 'regress':
         input, output = load_snns('letters.pat')
         net = loadnet(net_filename)
         regression_analysis(net, input, output)
+
     elif argv[2] == 'letter':
         if len(argv) < 4:
             print >> sys.stderr, USAGE.format(argv[0])
@@ -90,6 +103,12 @@ def _main(argv):
             print >> sys.stderr, "Letter must be uppercase A-Z"
             exit(1)
         plot_net_output(net, input[letter])
+
+    elif argv[2] == 'test':
+        input, _ = load_snns('letters.pat')
+        net = loadnet(net_filename)
+
+        output, regress = net.test(input, target)
     pass
 
 if __name__ == "__main__":
