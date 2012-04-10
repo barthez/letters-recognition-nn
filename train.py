@@ -2,7 +2,7 @@
 
 USAGE = """Usage {0} network_file.net action
     Actions:
-        - train pattern_filename.pat [max_noise_level = 0]
+        - train pattern_filename.pat
         - regress 
         - letter A-Z"""
 
@@ -83,7 +83,11 @@ def _main(argv):
             print >> sys.stderr, USAGE.format(argv[0])
             exit(1)
         pattern_filename = argv[3]
-        trained_up_to_times = int(argv[4])
+
+#        number of train runs does not affect the network
+#        trained_up_to_times = int(argv[4])
+        trained_up_to_times = 1
+
         print("Will train networks on: {0}...".format(pattern_filename))
         create_then_save_network_trained_on(net_filename, pattern_filename, trained_up_to_times)
 
