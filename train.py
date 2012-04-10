@@ -1,5 +1,13 @@
+#! /usr/bin/python2
 
-from ffnet import ffnet, mlgraph, savenet
+USAGE = """Usage {0} network_file.net action
+    Actions:
+        - train pattern_filename.pat
+        - regress 
+        - letter A-Z"""
+
+from ffnet import ffnet, mlgraph, savenet, loadnet
+from pylab import array
 from utils import *
 
 def create_and_train_bp(input, output, **kwargs):
@@ -34,19 +42,52 @@ def plot_net_output(net, input):
 
     show()
 
-input, output = load_snns('letters.pat')
+def regression_analysis(net, input, target):
+    from pylab import plot, legend, show, linspace
+    output, regress = net.test(input, target, iprint = 2)
+#   plot(array(target).T[n], output.T[n], 'o',
+#           label='targets vs. outputs')
+#   slope = regress[n][0]; 
+#   intercept = regress[n][1]
+#   x = linspace(0,1)
+#   y = slope * x + intercept
+#   plot(x, y, linewidth = 2, label = 'regression line')
+#   legend()
+#   show()
 
-net = create_and_train_bp(input, output)
-
-
-from random import randint
-
-pat = randint(0,25)
-
-plot_net_output(net, input[pat])
-
-
-filename = raw_input("File name (empty to skip saving): ")
-if len(filename) > 0:
+def train_pattern(filename, pattern):
+    input, output = load_snns(pattern)
+    net = create_and_train_bp(input, output)
     savenet(net, filename)
+
+def _main(argv):
+    if len(argv) < 3:
+        print >> sys.stderr, USAGE.format(argv[0])
+        exit(1)
+    
+    if argv[2] == 'train':
+        if len(argv) < 4:
+            print >> sys.stderr, USAGE.format(argv[0])
+            exit(1)
+        train_pattern(argv[1], argv[3])
+    elif argv[2] == 'regress':
+        input, output = load_snns('letters.pat')
+        net = loadnet(argv[1])
+        regression_analysis(net, input, output)
+    elif argv[2] == 'letter':
+        if len(argv) < 4:
+            print >> sys.stderr, USAGE.format(argv[0])
+            exit(1)
+        input, _ = load_snns('letters.pat')
+        net = loadnet(argv[1])
+        letter = ord(argv[3][0])-65
+        if letter < 0 or letter > 25:
+            print >> sys.stderr, "Letter must be uppercase A-Z"
+            exit(1);
+        plot_net_output(net, input[letter])
+    pass
+
+if __name__ == "__main__":
+    import sys
+    _main(sys.argv)
 
