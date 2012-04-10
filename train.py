@@ -1,4 +1,4 @@
-#! /usr/bin/python2
+#!/usr/bin/python2
 
 USAGE = """Usage {0} network_file.net action
     Actions:
@@ -58,32 +58,37 @@ def regression_analysis(net, input, target):
 def train_pattern(filename, pattern):
     input, output = load_snns(pattern)
     net = create_and_train_bp(input, output)
+
     savenet(net, filename)
+    print("Saved network as: {0}".format(filename))
 
 def _main(argv):
     if len(argv) < 3:
         print >> sys.stderr, USAGE.format(argv[0])
         exit(1)
-    
+
+    net_filename = argv[1]
+
     if argv[2] == 'train':
         if len(argv) < 4:
             print >> sys.stderr, USAGE.format(argv[0])
             exit(1)
-        train_pattern(argv[1], argv[3])
+        print("Training network on pattern file: {0}".format(argv[3]))
+        train_pattern(net_filename, argv[3])
     elif argv[2] == 'regress':
         input, output = load_snns('letters.pat')
-        net = loadnet(argv[1])
+        net = loadnet(net_filename)
         regression_analysis(net, input, output)
     elif argv[2] == 'letter':
         if len(argv) < 4:
             print >> sys.stderr, USAGE.format(argv[0])
             exit(1)
         input, _ = load_snns('letters.pat')
-        net = loadnet(argv[1])
+        net = loadnet(net_filename)
         letter = ord(argv[3][0])-65
         if letter < 0 or letter > 25:
             print >> sys.stderr, "Letter must be uppercase A-Z"
-            exit(1);
+            exit(1)
         plot_net_output(net, input[letter])
     pass
 

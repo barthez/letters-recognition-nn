@@ -13,8 +13,8 @@ def load_snns(filename):
             'output' : []
             }
     while file:
-        line = file.readline();
-        if len(line) == 0:
+        line = file.readline()
+        if not len(line):
             break
         p1 = re.match('^No\. of ([a-z]*)[^:]*: (\d+)$', line)
         p2 = re.match('^[#] ([A-Za-z]+)[^\d]*(\d+):$', line)
@@ -42,7 +42,7 @@ def load_snns(filename):
 def export_letter(filename, arr, rows = 7, cols = 5):
     if not re.search('\.png$', filename):
         filename += '.png'
-    imsave(filename, arr.reshape(rows,cols), cmap=cm.Greys);
+    imsave(filename, arr.reshape(rows,cols), cmap=cm.Greys)
 
 def import_letter(filename):
     if not re.search('\.png$', filename):
@@ -50,10 +50,10 @@ def import_letter(filename):
     arr = imread(filename)
     return array(
             map(lambda y: map(lambda z: abs(z[0]-1), y), arr)
-            ).flatten()
+           ).flatten()
     
 def export_all_letters():
-    inputs, _ = load_snns('letters.pat');
+    inputs, _ = load_snns('letters.pat')
     for ipt, let in zip(inputs, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
         export_letter("letters/" + let, ipt)
 

@@ -1,3 +1,4 @@
+#!/usr/bin/python2
 
 def _main(argv):
     from ffnet import loadnet
