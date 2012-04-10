@@ -67,7 +67,7 @@ def create_then_save_network_trained_on(name, pattern, trained_up_to_times):
         print("Training the net for the {0}th time...".format(up_to+1)),
         net = train_bp(net, input, output)
 
-        filename = "{0}_trained_{1}_times.net".format(name, up_to+1)
+        filename = "{0}_{1}.net".format(name, up_to+1)
         savenet(net, filename)
         print("saved as: {0}".format(filename))
 
