@@ -1,6 +1,6 @@
 
 from ffnet import ffnet, mlgraph, savenet
-from load_snns import *
+from utils import *
 
 def create_and_train_bp(input, output, **kwargs):
     it = len(input[0])
@@ -15,11 +15,10 @@ def create_and_train_bp(input, output, **kwargs):
 
 def plot_net_output(net, input):
     from pylab import (imshow,subplot,bar,xticks,xlim,axhline,
-            title,xlabel,ylabel,arange,show)
+            title,xlabel,ylabel,arange,show,cm)
 
     subplot(211)
-    imshow(input.reshape(7,5), interpolation = 'nearest')
-
+    imshow(input.reshape(7,5), interpolation = 'nearest', cmap=cm.Greys)
     subplot(212)
     N = 26
 

@@ -1,5 +1,5 @@
 import re
-from pylab import array
+from pylab import array, imshow, imsave, imread, cm
 
 def load_snns(filename):
     file = open(filename, 'r')
@@ -39,10 +39,23 @@ def load_snns(filename):
 
     return (patterns['input'], patterns['output'])
 
-#inputs, outputs = load_snns('letters.pat')
-#a = inputs[0]
+def export_letter(filename, arr, rows = 7, cols = 5):
+    if not re.search('\.png$', filename):
+        filename += '.png'
+    imsave(filename, arr.reshape(rows,cols), cmap=cm.Greys);
 
-#from pylab import *
+def import_letter(filename):
+    if not re.search('\.png$', filename):
+        filename += '.png'
+    arr = imread(filename)
+    return array(
+            map(lambda y: map(lambda z: abs(z[0]-1), y), arr)
+            ).flatten()
+    
+def export_all_letters():
+    inputs, _ = load_snns('letters.pat');
+    for ipt, let in zip(inputs, "ABCDEFGHIJKLMNOPQRSTUVWXYZ"):
+        export_letter("letters/" + let, ipt)
 
-#imshow(a.reshape(7,5), interpolation = 'nearest')
-#show()
+def show_letter(arr, rows=7, cols=5):
+    imshow(arr.reshape(rows,cols), cmap=cm.Greys)
