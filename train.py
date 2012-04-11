@@ -205,7 +205,7 @@ def plot_save_regressions(regressions_for_noise_amount, net_filename):
             bar(i, projections[i], width, color='b') # plot it
 #        bar(ind, projections[ind], width, color='b') # plot it
 
-        xticks(ind+width/2., range(1, N+1)) # todo print noise levels
+        xticks(ind+width/2., range(0, N)) # todo print noise levels
         xlim(-width,N-width)
         axhline(linewidth=1, color='black')
         xlabel("Noise amount")
