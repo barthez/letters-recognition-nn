@@ -22,15 +22,22 @@ I rok, 2 stopień, Informatyka Stosowana, EAIiE}
 \newpage
 \section{Wstęp}
 
-Celem projektu było zaprojektowanie oraz zbadanie właściwości sieci neuronowej mającej za cel rozpoznawanie wielkich liter alfabetu łacińskiego, 
+Celem projektu była implementacja oraz zbadanie właściwości sieci 
+neuronowej mającej za cel rozpoznawanie wielkich liter alfabetu łacińskiego,
 dostępnych jako macierze o rozmiarach 5x7. 
 
-Sieci zaprojektowano przy wykorzystaniu biblioteki Feed-Forward Neural Network for Python - ffnet. Zbudowane sieci uczono zadanych wzorców różnymi 
-metodami (Patrz sekcja 2), a następnie sprawdzano ich efektywność w rozpoznawaniu obrazów liter poddawanych coraz to większym zakłóceniom.
-2. Wybrane struktury i metody uczenia sieci neuronowych
+Sieci zaprojektowano przy wykorzystaniu biblioteki 
+Feed-Forward Neural Network for Python - ffnet. 
+Zbudowane sieci uczono zadanych wzorców różnymi 
+metodami (Patrz sekcja \ref{sec:metody}), a następnie sprawdzano ich efektywność w rozpoznawaniu obrazów liter poddawanych coraz to większym zakłóceniom.
 
-Podczas przeprowadzanych testów struktura sieci pozoztawała bez zmian. Modyfikowaliśmy jedynie zastosowane algorytmu uczące. Zastosowaliśmy metodę
-\verb|mlgraph| generującą standardową wielopoziomową strukturę sieci neuronowej, analogiczną do przedstawionej na Rysunku \ref{rys:graf}.
+\section{Wybrane struktury i metody uczenia sieci
+neuronowych}\label{sec:metody}
+
+Podczas przeprowadzanych testów struktura sieci pozoztawała bez zmian.
+Modyfikowaliśmy jedynie zastosowane algorytmu uczące. Zastosowaliśmy metodę
+\verb|mlgraph| generującą standardową wielopoziomową strukturę sieci 
+neuronowej, analogiczną do przedstawionej na Rysunku \ref{rys:graf}.
 
 \begin{figure}[pht]
  \centering
@@ -62,9 +69,10 @@ Na podstawie poniżej umieszczonych wyników testów będzie można ocenić któ
 
 \section{Analiza regresji liniowej}
 Poniżej przedstawiono przebiegi testów dla każdego z wyżej wspomnianych algorytmów.
-Na osi X zaznaczono poziom szumów które dodano do badanych obrazów. Dodawanie szumu wykonano poprzez N-ktorne (gdzie N to “poziom szumu”) wylosowanie punktu w macierzy 5x7 (reprezentującej badaną literę) w którym wykonano odwrócenie wartości logicznej. To znaczy jeżeli dane pole było częścią litery, oznaczaną wartościami“1”, to zmieniano ją na “0”, oraz analogicznie w przeciwnym przypadku.
+Na osi X zaznaczono poziom szumów które dodano do badanych obrazów. Dodawanie szumu wykonano poprzez N-ktorne (gdzie N to “poziom szumu”) wylosowanie punktu w macierzy 5x7 (reprezentującej badaną literę) w którym wykonano odwrócenie wartości logicznej. To znaczy jeżeli dane pole było częścią litery, oznaczaną wartościami 1, to zmieniano ją na 0, oraz analogicznie w przeciwnym przypadku.
 
-Przedstawione poniżej wyniki zostały uzyskane przy pomocy wbudowanej funkcji “test” służącej zbadaniu charakterystyk sieci poddawanej testom na podstawie podanego wejścia oraz oczekiwanego wyjścia.
+Przedstawione poniżej wyniki zostały uzyskane przy pomocy wbudowanej funkcji
+\verb|test| służącej zbadaniu charakterystyk sieci poddawanej testom na podstawie podanego wejścia oraz oczekiwanego wyjścia.
 
 \subsection{Nachylenie}
 \begin{figure}[pht]
@@ -72,11 +80,12 @@ Przedstawione poniżej wyniki zostały uzyskane przy pomocy wbudowanej funkcji �
  \includegraphics[scale=0.5]{../compare_plots/compare_plot_slope}
  \caption{Wykres wartości slope}\label{rys:plot1}
 \end{figure}
-Nachylenie (ang. ,,\textit{slope}'') w najlepszym praypadku może przyjąć wartość 1, ponieważ krzywa regresji 
-powinna przebiegać pod kątem 45 stopni przez punkt 0,0. Jak widać na Wykresie \ref{rys:plot1},
-metody proste bezproblemowo radzą sobie w tym przypadku zanim dodamy zakłucenia do badanych liter.
-Metoda gradientu sprzężonego (cg) nie poradziła sobie dbyt dobrze przy zerowym zakłuceniu, jednak warto 
-zauważyć iż dodając kolejne zakłucenia wartość nachylenie uzyskana przez tenalgorytm uczenia nie pogarsza się tak drastycznie 
+Nachylenie (ang. ,,\textit{slope}'') w najlepszym przypadku może przyjąć wartość 1, ponieważ krzywa regresji 
+powinna przebiegać pod kątem 45 stopni przez punkt 0,0. Jak widać na wykresie \ref{rys:plot1},
+metody proste bezproblemowo radzą sobie w tym przypadku zanim dodamy zakłócenia do badanych liter.
+Metoda gradientu sprzężonego (cg) nie poradziła sobie zbyt dobrze przy zerowym
+zakłóceniu, jednak warto 
+zauważyć iż dodając kolejne zakłócenia wartość nachylenie uzyskana przez ten algorytm uczenia nie pogarsza się tak drastycznie 
 jak w przypadku innych metod.
 
 \subsection{Przesunięcie}
@@ -94,7 +103,7 @@ wartości optymalnej wraz z wzrostem zaszumienia wzorów liter poddawanych prób
  \includegraphics[scale=0.5]{../compare_plots/compare_plot_r_value}
  \caption{Wykres wartości R-Value}\label{rys:plot1}
 \end{figure}
-Współczynnik Regresji, czyli współczynnik korelacji między wartościami oczekiwanymi oczekiwanym a otrzymanym wyjściem.
+Współczynnik korelacji (r-value) między wartościami oczekiwanymi oczekiwanym a otrzymanym wyjściem.
 Powinien być oczywiście możliwie bliski 1. 
 Najefektywniejszą przy nawet dużym zaszumieniu tutaj ponownie okazała się metoda ze wsteczną propagacją błędu z momentem.
 
