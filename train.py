@@ -203,9 +203,11 @@ def plot_save_regressions(regressions_for_noise_amount):
 
 #        debug uncomment to look at graphs
 #        show()
-        plot_filename = "plot_{}.png".format(projection_id)
-        savefig(plot_filename, orientation='portrait')
-        print("Saved plot as: {}.".format(plot_filename))
+        plot_output_formats = ['png', 'eps']
+        for format in plot_output_formats:
+            plot_filename = "plot_{}.{}".format(projection_id, format)
+            savefig(plot_filename, orientation='portrait')
+            print("Saved plot as: {}.".format(plot_filename))
 
 
 if __name__ == "__main__":
