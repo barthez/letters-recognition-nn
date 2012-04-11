@@ -6,3 +6,7 @@
 *~
 *.swp
 
+# tex
+*.aux
+*.log
+*.backup
