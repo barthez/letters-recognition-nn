@@ -161,9 +161,9 @@ def add_noise_to_letter(letter_array, noise_amount):
     return letter_array
 
 def plot_save_regressions(regressions_for_noise_amount):
-    from pylab import (imshow,subplot,bar,xticks,xlim,axhline,title,xlabel,ylabel,arange,show,cm)
+    from pylab import (imshow,subplot,bar,xticks,xlim,axhline,title,xlabel,ylabel,arange,show,cm,
+                       savefig,save,imsave)
 
-    subplot(212)
     N = len(regressions_for_noise_amount) # how many noise levels we have to draw
     print("Will plot for for {} noise levels...".format(N))
 
@@ -181,20 +181,31 @@ def plot_save_regressions(regressions_for_noise_amount):
     y_name[6] = "estim. stderr"
 
     for projection_id in range(1,6): # todo has bug? how do i select the data
-        ylabel(y_name[projection_id])
+        subplot(11 + projection_id * 100) # a new plot
+
+        projection_name = y_name[projection_id]
+        ylabel(projection_name)
+        print("Plotting for projection: " + projection_name)
 
         projections = map(lambda t: t[projection_id], regressions_for_noise_amount[projection_id])
-        print("PROJECTIONS on [{}] = {}".format(projection_id, projections))
+        print("Projections on {} tuple field ({}) = {}".format(projection_id, projection_name, projections))
 
-        bar(0, projections[0], width, color='b') # plot it
+        title(projection_name + " for noise levels...") # todo change me?
 
-    xticks(ind+width/2., range(1, N+1)) # todo print noiselevels
-    xlim(-width,N-width)
-    axhline(linewidth=1, color='black')
-    title("Trained network (35-10-26) guesses a letter above...")
-    xlabel("Noise amount")
+        for i in ind:
+            bar(i, projections[i], width, color='b') # plot it
+#        bar(ind, projections[ind], width, color='b') # plot it
 
-    show()
+        xticks(ind+width/2., range(1, N+1)) # todo print noise levels
+        xlim(-width,N-width)
+        axhline(linewidth=1, color='black')
+        xlabel("Noise amount")
+
+#        debug uncomment to look at graphs
+#        show()
+        plot_filename = "plot_{}.png".format(projection_id)
+        savefig(plot_filename, orientation='portrait')
+        print("Saved plot as: {}.".format(plot_filename))
 
 
 if __name__ == "__main__":
