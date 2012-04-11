@@ -119,13 +119,21 @@ def _main(argv):
 
         input, target = load_snns('letters.pat')
 
+        regressions_for_noise_amount = {}
         # for all noise levels we want to check
         for noise_amount in range(1, max_noise_num+1):
             noised_input = add_noise_to_input(input, noise_amount)
             net = loadnet(net_filename)
 
             output, regress = net.test(noised_input, target)
-#            todo implement rest
+
+            # store results for future use
+            regressions_for_noise_amount[noise_amount] = regress
+
+        # plot and save results
+        print("Plotting results...")
+        plot_save_regressions(regressions_for_noise_amount)
+
     pass
 
 def add_noise_to_input(input, noise_amount):
@@ -151,6 +159,43 @@ def add_noise_to_letter(letter_array, noise_amount):
         letter_array[noise_here] = not letter_array[noise_here]
 
     return letter_array
+
+def plot_save_regressions(regressions_for_noise_amount):
+    from pylab import (imshow,subplot,bar,xticks,xlim,axhline,title,xlabel,ylabel,arange,show,cm)
+
+    subplot(212)
+    N = len(regressions_for_noise_amount) # how many noise levels we have to draw
+    print("Will plot for for {} noise levels...".format(N))
+
+    ind = arange(N)   # the x locations for the groups
+    print("ind = {}".format(ind))
+    width = 0.35       # the width of the bars
+
+#    projection id -> name, as returned into tuples by http://ffnet.sourceforge.net/apidoc.html#ffnet.ffnet.test
+    y_name = {}
+    y_name[1] = "slope"
+    y_name[2] = "intercept"
+    y_name[3] = "r-value"
+    y_name[4] = "p-value"
+    y_name[5] = "slope stderr"
+    y_name[6] = "estim. stderr"
+
+    for projection_id in range(1,6): # todo has bug? how do i select the data
+        ylabel(y_name[projection_id])
+
+        projections = map(lambda t: t[projection_id], regressions_for_noise_amount[projection_id])
+        print("PROJECTIONS on [{}] = {}".format(projection_id, projections))
+
+        bar(0, projections[0], width, color='b') # plot it
+
+    xticks(ind+width/2., range(1, N+1)) # todo print noiselevels
+    xlim(-width,N-width)
+    axhline(linewidth=1, color='black')
+    title("Trained network (35-10-26) guesses a letter above...")
+    xlabel("Noise amount")
+
+    show()
+
 
 if __name__ == "__main__":
     import sys
