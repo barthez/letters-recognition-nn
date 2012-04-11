@@ -19,8 +19,6 @@ I rok, 2 stopień, Informatyka Stosowana, EAIiE}
 
 \maketitle
 
-\makeindex
-
 \newpage
 \section{Wstęp}
 
@@ -68,19 +66,27 @@ Na osi X zaznaczono poziom szumów które dodano do badanych obrazów. Dodawanie
 
 Przedstawione poniżej wyniki zostały uzyskane przy pomocy wbudowanej funkcji “test” służącej zbadaniu charakterystyk sieci poddawanej testom na podstawie podanego wejścia oraz oczekiwanego wyjścia.
 
-\subsection{Slope}
+\subsection{Nachylenie}
 \begin{figure}[pht]
  \centering
  \includegraphics[scale=0.5]{../compare_plots/compare_plot_slope}
  \caption{Wykres wartości slope}\label{rys:plot1}
 \end{figure}
-Slope w najlepszym praypadku może przyjąć wartość 1 (a intercept wartość 0), ponieważ krzywa regresji 
+Nachylenie (slope) w najlepszym praypadku może przyjąć wartość 1, ponieważ krzywa regresji 
 powinna przebiegać pod kątem 45 stopni przez punkt 0,0. Jak widać na Wykresie \ref{rys:plot1},
 metody proste bezproblemowo radzą sobie w tym przypadku zanim dodamy zakłucenia do badanych liter.
 Metoda gradientu sprzężonego (cg) nie poradziła sobie dbyt dobrze przy zerowym zakłuceniu, jednak warto 
-zauważyć iż dodając kolejne zakłucenia wartość slope uzyskana przez tenalgorytm uczenia nie pogarsza się tak drastycznie 
+zauważyć iż dodając kolejne zakłucenia wartość nachylenie uzyskana przez tenalgorytm uczenia nie pogarsza się tak drastycznie 
 jak w przypadku innych metod.
 
+\subsection{Przesunięcie}
+\begin{figure}[pht]
+ \centering
+ \includegraphics[scale=0.5]{../compare_plots/compare_plot_intercept}
+ \caption{Wykres wartości slope}\label{rys:plot1}
+\end{figure}
+Optymalną wartością przesunięcia jest 0. Ponownie widać, że metoda momentum niewiele oddala się od
+wartości optymalnej wraz z wzrostem zaszumienia wzorów liter poddawanych próbom rozpoznania.
 
 \subsection{R-Value}
 \begin{figure}[pht]
