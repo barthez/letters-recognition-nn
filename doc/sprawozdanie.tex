@@ -72,7 +72,7 @@ Przedstawione poniżej wyniki zostały uzyskane przy pomocy wbudowanej funkcji �
  \includegraphics[scale=0.5]{../compare_plots/compare_plot_slope}
  \caption{Wykres wartości slope}\label{rys:plot1}
 \end{figure}
-Nachylenie (slope) w najlepszym praypadku może przyjąć wartość 1, ponieważ krzywa regresji 
+Nachylenie (ang. ,,\textit{slope}'') w najlepszym praypadku może przyjąć wartość 1, ponieważ krzywa regresji 
 powinna przebiegać pod kątem 45 stopni przez punkt 0,0. Jak widać na Wykresie \ref{rys:plot1},
 metody proste bezproblemowo radzą sobie w tym przypadku zanim dodamy zakłucenia do badanych liter.
 Metoda gradientu sprzężonego (cg) nie poradziła sobie dbyt dobrze przy zerowym zakłuceniu, jednak warto 
@@ -85,7 +85,7 @@ jak w przypadku innych metod.
  \includegraphics[scale=0.5]{../compare_plots/compare_plot_intercept}
  \caption{Wykres wartości slope}\label{rys:plot1}
 \end{figure}
-Optymalną wartością przesunięcia jest 0. Ponownie widać, że metoda momentum niewiele oddala się od
+Optymalną wartością przesunięcia (ang. ,,\textit{intercept}'') jest 0. Ponownie widać, że metoda momentum niewiele oddala się od
 wartości optymalnej wraz z wzrostem zaszumienia wzorów liter poddawanych próbom rozpoznania.
 
 \subsection{R-Value}
@@ -127,6 +127,9 @@ metody ze wsteczną propagacją ,,z'' i ,,bez'' elementu momentum - okazuje się
 skomplikowanej metody wykorzystującej gradient.
 
 \section{Podsumowanie}
+Najlepszą metodą okazała się być metoda uczenia ze wsteczną propagacją błędu z ,,momentem''.
+Okazała się nawet skuteczniejsza niż bardziej zaawansowana metoda jaką jest metoda gradientu sprzężonego.
+
 Warto wspomnieć iż przy wszystkich wybranych algorytmach uczących zastosowano domyślne parametry. 
 Dalsze testy oraz próby optymalizacji dobranych parametrów mogłyby pozytywnie wpłynąć na uzyskiwaną przez sieci efektywność.
 
