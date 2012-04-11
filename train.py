@@ -1,11 +1,13 @@
 #!/usr/bin/python2
 
-USAGE = """Usage {0} network_file.net action
+USAGE = """
+Usage {0} network_file.net action
     Actions:
         - train pattern_filename.pat (bfgs|cg|genetic|momentum|rprop|tnc)
         - regress 
         - letter A-Z
         - test max_noise_num
+        - compare max_noise_num network_file.net [network_file.net ...]
 """
 
 from ffnet import ffnet, mlgraph, savenet, loadnet
@@ -123,24 +125,22 @@ def _main(argv):
 
         input, target = load_snns('letters.pat')
 
-        regressions_for_noise_amount = []
         # Load net
         net = loadnet(net_filename)
-
-        # for all noise levels we want to check
-        for noise_amount in range(max_noise_num+1):
-            noised_input = add_noise_to_input(input, noise_amount)
-
-            output, regress = net.test(noised_input, target, iprint = 0)
-
-            # store results for future use
-            regressions_for_noise_amount.append( mean(regress, 0) )
-
         # plot and save results
         print("Plotting results...")
-        plot_save_regressions(array(regressions_for_noise_amount), net_filename)
+        plot_save_regressions(
+                compute_regressions_for_noise_amount(net, input, target, max_noise_num),
+                net_filename)
+    elif argv[2] == "compare":
+        if len(argv) < 5:
+            print >> sys.stderr, USAGE.format(argv[0])
+            exit(1)
+        input, target = load_snns('letters.pat')
 
-    pass
+        filenames = [argv[1]] + argv[4:]
+        max_noise_num = int(argv[3])
+        plot_save_regressions_compare(filenames, input, target, max_noise_num)
 
 def add_noise_to_input(input, noise_amount):
     print("adding {} noises to each input letter pattern...".format(noise_amount))
@@ -165,6 +165,21 @@ def add_noise_to_letter(letter_array, noise_amount):
         letter_array[noise_here] = not letter_array[noise_here]
 
     return letter_array
+
+def compute_regressions_for_noise_amount(network, input, target, max_noise_amount):
+    regressions_for_noise_amount = []
+
+    # for all noise levels we want to check
+    for noise_amount in range(max_noise_amount+1):
+        noised_input = add_noise_to_input(input, noise_amount)
+
+        output, regress = network.test(noised_input, target, iprint = 0)
+        
+
+        # store results for future use
+        regressions_for_noise_amount.append( mean(regress, 0) )
+    return array(regressions_for_noise_amount)
+
 
 def plot_save_regressions(regressions_for_noise_amount, net_filename):
     from pylab import (imshow,subplot,bar,xticks,xlim,axhline,title,
@@ -226,6 +241,74 @@ def plot_save_regressions(regressions_for_noise_amount, net_filename):
             savefig(plot_filename, orientation='portrait')
             print("Saved plot as: {}.".format(plot_filename))
 
+def plot_save_regressions_compare(net_filenames, input, target, max_noise_amount):
+    from pylab import (imshow,plot,legend,xticks,ylim,xlim,axhline,title,
+            xlabel,ylabel,arange,show,cm,figure,savefig,save,imsave)
+    names = [ n.rsplit('.',1)[0].rsplit('_',1).pop() for n in net_filenames ]
+    networks = [ loadnet(filename) for filename in net_filenames ]
+    regressions = [ compute_regressions_for_noise_amount(
+        net, input, target, max_noise_amount) for net in networks ]
+
+
+    # how many noise levels we have to draw
+    N = max_noise_amount+1
+    print("Will plot for for {} noise levels...".format(N))
+
+    ind = arange(N)   # the x locations for the groups
+    print("ind = {}".format(ind))
+    width = 0.35       # the width of the bars
+
+#    projection id -> name, as returned into tuples by http://ffnet.sourceforge.net/apidoc.html#ffnet.ffnet.test
+    y_name = ["slope",
+        "intercept",
+        "r-value",
+        "p-value",
+        "slope stderr",
+        "estim. stderr"]
+
+    for projection_id in range(6): # todo has bug? how do i select the data
+        #subplot(11 + projection_id * 100) # a new plot
+        figure()
+
+        projection_name = y_name[projection_id]
+        ylabel(projection_name)
+        ylim(0,1)
+        print("Plotting for projection: " + projection_name)
+
+        title(projection_name + " for noise levels...") # todo change me?
+
+        for name, regress in zip(names, regressions):
+            projections = regress.T[projection_id]
+            print("Projections on {} tuple field ({}) = {}".format(
+                projection_id, projection_name, projections))
+            plot(ind, projections, label = name)
+
+#      for i in ind:
+#          bar(i, projections[i], width, color='b') # plot it
+#        bar(ind, projections[ind], width, color='b') # plot it
+
+
+
+        xticks(ind, range(0, N)) # todo print noise levels
+        xlim(0,N-1)
+        axhline(linewidth=1, color='black')
+        xlabel("Noise amount")
+        legend()
+
+#        debug uncomment to look at graphs
+#        show()
+        plot_output_formats = ['png', 'eps']
+        for format in plot_output_formats:
+            plot_name = re_sub(
+                    "[^a-z]",
+                    "_",
+                    y_name[projection_id].lower() )
+
+            plot_filename = "compare_plot_{}.{}".format(
+                    plot_name,
+                    format)
+            savefig(plot_filename, orientation='portrait')
+            print("Saved plot as: {}.".format(plot_filename))
 
 if __name__ == "__main__":
     import sys
