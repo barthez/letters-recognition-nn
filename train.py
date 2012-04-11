@@ -2,15 +2,16 @@
 
 USAGE = """Usage {0} network_file.net action
     Actions:
-        - train pattern_filename.pat
+        - train pattern_filename.pat (bfgs|cg|genetic|momentum|rprop|tnc)
         - regress 
         - letter A-Z
         - test max_noise_num
 """
 
 from ffnet import ffnet, mlgraph, savenet, loadnet
-from pylab import array
+from pylab import array, mean
 from utils import *
+from re import sub as re_sub
 
 def create_bp(input, output):
     it = len(input[0])
@@ -20,11 +21,6 @@ def create_bp(input, output):
     net = ffnet(connection)
 
     print("Created new network...")
-    return net
-
-# trains a network, multiple times
-def train_bp(net, input, output):
-    net.train_momentum(input, output)
     return net
 
 def plot_net_output(net, input):
@@ -51,6 +47,7 @@ def plot_net_output(net, input):
 def regression_analysis(net, input, target):
     from pylab import plot, legend, show, linspace
     output, regress = net.test(input, target, iprint = 2)
+    print regress
 #   plot(array(target).T[n], output.T[n], 'o',
 #           label='targets vs. outputs')
 #   slope = regress[n][0]; 
@@ -61,17 +58,17 @@ def regression_analysis(net, input, target):
 #   legend()
 #   show()
 
-def create_then_save_network_trained_on(name, pattern, trained_up_to_times):
+def create_then_save_network_trained_on(name, pattern, train_method):
     input, output = load_snns(pattern)
     net = create_bp(input, output)
 
-    for up_to in range(trained_up_to_times):
-        print("Training the net for the {0}th time...".format(up_to+1)),
-        net = train_bp(net, input, output)
+    print("Training the net with {0} algorithm...".format(train_method))
+    training = getattr(net, "train_" + train_method)
+    training(input, output)
 
-        filename = "{0}_{1}.net".format(name, up_to+1)
-        savenet(net, filename)
-        print("saved as: {0}".format(filename))
+    filename = "{0}_{1}.net".format(name, train_method)
+    savenet(net, filename)
+    print("saved as: {0}".format(filename))
 
 def _main(argv):
     if len(argv) < 3:
@@ -86,12 +83,19 @@ def _main(argv):
             exit(1)
         pattern_filename = argv[3]
 
+        train_method = "momentum"
+        if len(argv) > 4:
+            train_method = argv[4]
+
 #        number of train runs does not affect the network
 #        trained_up_to_times = int(argv[4])
         trained_up_to_times = 1
 
         print("Will train networks on: {0}...".format(pattern_filename))
-        create_then_save_network_trained_on(net_filename, pattern_filename, trained_up_to_times)
+        create_then_save_network_trained_on(
+                net_filename,
+                pattern_filename,
+                train_method)
 
     elif argv[2] == 'regress':
         input, output = load_snns('letters.pat')
@@ -119,20 +123,22 @@ def _main(argv):
 
         input, target = load_snns('letters.pat')
 
-        regressions_for_noise_amount = {}
-        # for all noise levels we want to check
-        for noise_amount in range(1, max_noise_num+1):
-            noised_input = add_noise_to_input(input, noise_amount)
-            net = loadnet(net_filename)
+        regressions_for_noise_amount = []
+        # Load net
+        net = loadnet(net_filename)
 
-            output, regress = net.test(noised_input, target)
+        # for all noise levels we want to check
+        for noise_amount in range(max_noise_num+1):
+            noised_input = add_noise_to_input(input, noise_amount)
+
+            output, regress = net.test(noised_input, target, iprint = 0)
 
             # store results for future use
-            regressions_for_noise_amount[noise_amount] = regress
+            regressions_for_noise_amount.append( mean(regress, 0) )
 
         # plot and save results
         print("Plotting results...")
-        plot_save_regressions(regressions_for_noise_amount)
+        plot_save_regressions(array(regressions_for_noise_amount), net_filename)
 
     pass
 
@@ -160,11 +166,14 @@ def add_noise_to_letter(letter_array, noise_amount):
 
     return letter_array
 
-def plot_save_regressions(regressions_for_noise_amount):
-    from pylab import (imshow,subplot,bar,xticks,xlim,axhline,title,xlabel,ylabel,arange,show,cm,
-                       savefig,save,imsave)
+def plot_save_regressions(regressions_for_noise_amount, net_filename):
+    from pylab import (imshow,subplot,bar,xticks,xlim,axhline,title,
+            xlabel,ylabel,arange,show,cm,figure,savefig,save,imsave)
 
-    N = len(regressions_for_noise_amount) # how many noise levels we have to draw
+    name = net_filename.rsplit('.', 1)[0]
+
+    # how many noise levels we have to draw
+    N = len(regressions_for_noise_amount) 
     print("Will plot for for {} noise levels...".format(N))
 
     ind = arange(N)   # the x locations for the groups
@@ -172,22 +181,22 @@ def plot_save_regressions(regressions_for_noise_amount):
     width = 0.35       # the width of the bars
 
 #    projection id -> name, as returned into tuples by http://ffnet.sourceforge.net/apidoc.html#ffnet.ffnet.test
-    y_name = {}
-    y_name[1] = "slope"
-    y_name[2] = "intercept"
-    y_name[3] = "r-value"
-    y_name[4] = "p-value"
-    y_name[5] = "slope stderr"
-    y_name[6] = "estim. stderr"
+    y_name = ["slope",
+        "intercept",
+        "r-value",
+        "p-value",
+        "slope stderr",
+        "estim. stderr"]
 
-    for projection_id in range(1,6): # todo has bug? how do i select the data
-        subplot(11 + projection_id * 100) # a new plot
+    for projection_id in range(6): # todo has bug? how do i select the data
+        #subplot(11 + projection_id * 100) # a new plot
+        figure()
 
         projection_name = y_name[projection_id]
         ylabel(projection_name)
         print("Plotting for projection: " + projection_name)
 
-        projections = map(lambda t: t[projection_id], regressions_for_noise_amount[projection_id])
+        projections = regressions_for_noise_amount.T[projection_id]
         print("Projections on {} tuple field ({}) = {}".format(projection_id, projection_name, projections))
 
         title(projection_name + " for noise levels...") # todo change me?
@@ -205,7 +214,15 @@ def plot_save_regressions(regressions_for_noise_amount):
 #        show()
         plot_output_formats = ['png', 'eps']
         for format in plot_output_formats:
-            plot_filename = "plot_{}.{}".format(projection_id, format)
+            plot_name = re_sub(
+                    "[^a-z]",
+                    "_",
+                    y_name[projection_id].lower() )
+
+            plot_filename = "{}_plot_{}.{}".format(
+                    name, 
+                    plot_name,
+                    format)
             savefig(plot_filename, orientation='portrait')
             print("Saved plot as: {}.".format(plot_filename))
 
