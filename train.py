@@ -4,7 +4,9 @@ USAGE = """Usage {0} network_file.net action
     Actions:
         - train pattern_filename.pat
         - regress 
-        - letter A-Z"""
+        - letter A-Z
+        - test max_noise_num
+"""
 
 from ffnet import ffnet, mlgraph, savenet, loadnet
 from pylab import array
@@ -109,11 +111,46 @@ def _main(argv):
         plot_net_output(net, input[letter])
 
     elif argv[2] == 'test':
-        input, _ = load_snns('letters.pat')
-        net = loadnet(net_filename)
+        if len(argv) < 4:
+            print >> sys.stderr, USAGE.format(argv[0])
+            exit(1)
 
-        output, regress = net.test(input, target)
+        max_noise_num = int(argv[3])
+
+        input, target = load_snns('letters.pat')
+
+        # for all noise levels we want to check
+        for noise_amount in range(1, max_noise_num+1):
+            noised_input = add_noise_to_input(input, noise_amount)
+            net = loadnet(net_filename)
+
+            output, regress = net.test(noised_input, target)
+#            todo implement rest
     pass
+
+def add_noise_to_input(input, noise_amount):
+    print("adding {} noises to each input letter pattern...".format(noise_amount))
+
+    n = len(input)
+    noised_input = map(lambda ar: add_noise_to_letter(ar, noise_amount), input)
+
+#    debug print
+    for i in range(n):
+        letter = chr(i + 65)
+        print("real   {0}: {1}".format(letter, input[i]))
+        print("noised {0}: {1}".format(letter, noised_input[i]))
+
+    return noised_input
+
+# add noise to an array
+def add_noise_to_letter(letter_array, noise_amount):
+    letter_array = letter_array.copy()
+    from random import randint
+    for _ in range(noise_amount):
+        noise_here = randint(0, len(letter_array) - 1)
+        letter_array[noise_here] = not letter_array[noise_here]
+
+    return letter_array
 
 if __name__ == "__main__":
     import sys
